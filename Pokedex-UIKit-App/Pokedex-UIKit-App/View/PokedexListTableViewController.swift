@@ -31,7 +31,7 @@ class PokedexListTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         commonInit()
-        viewModel.fetchPokedexList()
+        viewModel.fetchPokemonsForPokedex()
     }
     
     //MARK: - Helpers
@@ -49,6 +49,8 @@ class PokedexListTableViewController: UITableViewController {
         navigationItem.title = "Pokedex"
         
         tableView.rowHeight = 80
+        tableView.tableFooterView = UIView()
+        tableView.separatorStyle = .none
         tableView.register(PokedexCell.self, forCellReuseIdentifier: POKEDEX_CEL_IDENTIFIER)
     }
     
@@ -74,10 +76,18 @@ class PokedexListTableViewController: UITableViewController {
         
         viewModel.showError = { error in
             DispatchQueue.main.async { [weak self] in
-                guard let _ = self else { return }
-                print(error.localizedDescription)
+                guard let self = self else { return }
+                self.showAlert(title: "Erro inesperado", message: error.localizedDescription)
             }
         }
+    }
+    
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .cancel)
+        alert.addAction(action)
+        
+        present(alert, animated: true, completion: nil)
     }
     
     //MARK: - Selectors
@@ -99,6 +109,8 @@ extension PokedexListTableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: POKEDEX_CEL_IDENTIFIER, for: indexPath) as! PokedexCell
         let pokemon = viewModel.getPokemon(at: indexPath.row)
         cell.configureCell(pokemon: pokemon)
+        cell.pokemonImage.image = viewModel.getPokemonImage(at: indexPath.row)
+        cell.pokemonImage.layoutIfNeeded()
         return cell
     }
     

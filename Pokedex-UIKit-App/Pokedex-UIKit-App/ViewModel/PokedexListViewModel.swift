@@ -5,14 +5,15 @@
 //  Created by Paolo Prodossimo Lopes on 28/10/21.
 //
 
-import Foundation
+import UIKit
 
 final class PokedexListViewModel {
     
     //MARK: - Properties
     
-    private let service: WebService = .shared
-    private var pokemons = [PokemonListReponse]()
+    private let repository: PokedexRepository = .init()
+    private var pokemonsResponse = [PokemonListReponse]()
+    private var pokemonImages = [UIImage]()
     
     //MARK: - Bindings
     
@@ -22,25 +23,26 @@ final class PokedexListViewModel {
     //MARK: - Functions
     
     func getPokemon(at index: Int) -> PokemonListReponse {
-        return pokemons[index]
+        return pokemonsResponse[index]
+    }
+    
+    func getPokemonImage(at index: Int) -> UIImage? {
+        let outOfRange: Bool = (index) >= pokemonImages.count
+        return outOfRange ? nil : pokemonImages[index]
     }
     
     func getNumberOfPokemons() -> Int {
-        return pokemons.count
+        return pokemonsResponse.count
     }
     
-    func fetchPokedexList() {
-        service.fetchPokemons(request: PokemonListRequest()) { results in
-            switch results {
-            case .success(let pokemons):
-                self.pokemons = pokemons.results
-                self.updateView?()
-            case .failure(let error):
-                self.showError?(error)
-            }
+    func fetchPokemonsForPokedex() {
+        repository.fetchPokedexList { [weak self] listReponse, pImage in
+            guard let self = self else { return }
+            self.pokemonImages.append(pImage)
+            self.pokemonsResponse.append(listReponse)
+            self.updateView?()
+        } failure: { [weak self] error in
+            self?.showError?(error)
         }
     }
-    
-    
-    
 }

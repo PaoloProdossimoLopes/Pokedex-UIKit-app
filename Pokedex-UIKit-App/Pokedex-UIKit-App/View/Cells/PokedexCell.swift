@@ -13,17 +13,17 @@ final class PokedexCell: UITableViewCell {
     
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .lightGray
+        view.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.15)
         view.layer.cornerRadius = 5
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    private let pokemonImage: UIImageView = {
+    let pokemonImage: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
         image.layer.cornerRadius = 40/2
-        image.backgroundColor = .red
+        image.backgroundColor = .white
         return image
     }()
     
@@ -85,6 +85,5 @@ final class PokedexCell: UITableViewCell {
     func configureCell(pokemon: PokemonListReponse) {
         pokemonName.text = pokemon.name
     }
-    
     
 }
