@@ -11,9 +11,18 @@ final class PokedexCell: UITableViewCell {
     
     //MARK: - Properties
     
+    private let containerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .lightGray
+        view.layer.cornerRadius = 5
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private let pokemonImage: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
+        image.layer.cornerRadius = 40/2
         image.backgroundColor = .red
         return image
     }()
@@ -22,6 +31,7 @@ final class PokedexCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Pokemon name Here"
+        label.font = .boldSystemFont(ofSize: 18)
         return label
     }()
     
@@ -45,12 +55,18 @@ final class PokedexCell: UITableViewCell {
     }
     
     private func configureViewHeirarchy() {
-        addSubview(pokemonImage)
-        addSubview(pokemonName)
+        [containerView, pokemonImage, pokemonName].forEach {
+            addSubview($0)
+        }
     }
     
     private func configureConstraints() {
         NSLayoutConstraint.activate([
+            containerView.topAnchor.constraint(equalTo: topAnchor, constant: 3),
+            containerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
+            containerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
+            containerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -3),
+            
             pokemonImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             pokemonImage.centerYAnchor.constraint(equalTo: centerYAnchor),
             pokemonImage.heightAnchor.constraint(equalToConstant: 40),
