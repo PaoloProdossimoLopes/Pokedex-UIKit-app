@@ -38,9 +38,6 @@ class PokedexListTableViewController: UITableViewController {
     
     private func commonInit() {
         configureNavigationController()
-        configureHierarchy()
-        configureConstraints()
-        configureStyle()
         configureBindings()
     }
     
@@ -48,22 +45,10 @@ class PokedexListTableViewController: UITableViewController {
         view.backgroundColor = .white
         navigationItem.title = "Pokedex"
         
-        tableView.rowHeight = 80
+        tableView.rowHeight = 300
         tableView.tableFooterView = UIView()
         tableView.separatorStyle = .none
         tableView.register(PokedexCell.self, forCellReuseIdentifier: POKEDEX_CEL_IDENTIFIER)
-    }
-    
-    private func configureHierarchy() {
-        
-    }
-    
-    private func configureConstraints() {
-        
-    }
-    
-    private func configureStyle() {
-        
     }
     
     private func configureBindings() {
@@ -107,10 +92,10 @@ extension PokedexListTableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: POKEDEX_CEL_IDENTIFIER, for: indexPath) as! PokedexCell
-        let pokemon = viewModel.getPokemon(at: indexPath.row)
+        let pk = viewModel.getPokemon(at: indexPath.row)
+        let pokemon: Pokemon = .init(name: pk.name,
+                                     photo: viewModel.getPokemonImage(at: indexPath.row))
         cell.configureCell(pokemon: pokemon)
-        cell.pokemonImage.image = viewModel.getPokemonImage(at: indexPath.row)
-        cell.pokemonImage.layoutIfNeeded()
         return cell
     }
     

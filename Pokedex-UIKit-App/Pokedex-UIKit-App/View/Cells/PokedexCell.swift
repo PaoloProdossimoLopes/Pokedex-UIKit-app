@@ -19,11 +19,10 @@ final class PokedexCell: UITableViewCell {
         return view
     }()
     
-    let pokemonImage: UIImageView = {
+    private let pokemonImage: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
-        image.layer.cornerRadius = 40/2
-        image.backgroundColor = .white
+        image.backgroundColor = .clear
         return image
     }()
     
@@ -31,8 +30,17 @@ final class PokedexCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Pokemon name Here"
+        label.textAlignment = .center
         label.font = .boldSystemFont(ofSize: 18)
         return label
+    }()
+    
+    private let mainStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 20
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
     }()
     
     //MARK: - Init
@@ -55,26 +63,25 @@ final class PokedexCell: UITableViewCell {
     }
     
     private func configureViewHeirarchy() {
-        [containerView, pokemonImage, pokemonName].forEach {
-            addSubview($0)
-        }
+        [pokemonImage, pokemonName, UIView()].forEach { mainStackView.addArrangedSubview($0) }
+        [containerView, mainStackView].forEach { addSubview($0) }
     }
     
     private func configureConstraints() {
         NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: topAnchor, constant: 3),
-            containerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
-            containerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            containerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -3),
             
-            pokemonImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            pokemonImage.centerYAnchor.constraint(equalTo: centerYAnchor),
-            pokemonImage.heightAnchor.constraint(equalToConstant: 40),
-            pokemonImage.widthAnchor.constraint(equalToConstant: 40),
+            containerView.topAnchor.constraint(equalTo: topAnchor, constant: 20),
+            containerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            containerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            containerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
             
-            pokemonName.centerYAnchor.constraint(equalTo: centerYAnchor),
-            pokemonName.leadingAnchor.constraint(equalTo: pokemonImage.trailingAnchor, constant: 10),
-            pokemonName.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            mainStackView.topAnchor.constraint(equalTo: topAnchor, constant: 3),
+            mainStackView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            mainStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -3),
+            
+            pokemonImage.heightAnchor.constraint(equalToConstant: 150),
+            pokemonImage.widthAnchor.constraint(equalToConstant: 150),
+            
         ])
     }
     
@@ -82,8 +89,9 @@ final class PokedexCell: UITableViewCell {
         
     }
     
-    func configureCell(pokemon: PokemonListReponse) {
+    func configureCell(pokemon: Pokemon) {
         pokemonName.text = pokemon.name
+        pokemonImage.image = pokemon.photo
     }
     
 }
