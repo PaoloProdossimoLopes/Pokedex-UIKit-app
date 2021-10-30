@@ -12,18 +12,20 @@ class WebService {
     
     static let shared: WebService = .init()
     
-    func fetchPokemonList(request: Request, result: @escaping (Result<PokemonReponse, WebServiceError>)->()) {
+    func fetchPokemonList(request: PokemonRequest, result: @escaping (Result<PokemonReponse, WebServiceError>)->()) {
         
-        guard let url = request.url else {
+        guard let url = request.API else {
             result(.failure(.URLInvalid))
             return
         }
         
         callAPI(url: url) { (listResult: Result<PokemonReponse, WebServiceError>) in
-            result(listResult) }
+            result(listResult)
+        }
     }
     
-    func fetchPokemonDetail(urlString: String, result:  @escaping  (Result<PokemonDetailReponse, WebServiceError>)->()) {
+    func fetchPokemonDetail(urlString: String,
+                            result:  @escaping (Result<PokemonDetailReponse, WebServiceError>)->()) {
         
         guard let url = URL(string: urlString) else {
             result(.failure(.URLInvalid))
@@ -49,6 +51,16 @@ class WebService {
         
         guard let image = UIImage(data: data) else { return }
         completion(image)
+    }
+    
+    func fetchMoreDetails(urlString: String, completion: @escaping (Result<SpeciesDetailResponse, WebServiceError>)->()) {
+        
+        guard let url = URL(string: urlString) else { return }
+        
+        callAPI(url: url) { (result: Result<SpeciesDetailResponse, WebServiceError>) in
+            completion(result)
+        }
+
     }
     
     private func callAPI<T: Decodable>(url: URL, result: @escaping (Result<T, WebServiceError>)-> Void) {

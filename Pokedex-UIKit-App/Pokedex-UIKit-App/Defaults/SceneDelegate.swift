@@ -19,8 +19,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let vm = PokedexListViewModel()
         let vc = PokedexListTableViewController(viewModel: vm)
+        let nav = UINavigationController(rootViewController: vc)
         
-        window?.rootViewController = UINavigationController(rootViewController: vc)
+        window?.rootViewController = nav
     }
 
     func sceneDidDisconnect(_ scene: UIScene) { }

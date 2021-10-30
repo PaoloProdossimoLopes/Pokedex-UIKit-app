@@ -13,7 +13,7 @@ final class PokedexCell: UITableViewCell {
     
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.15)
+        view.backgroundColor = UIColor.lightGray.withAlphaComponent(0.15)
         view.layer.cornerRadius = 5
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -30,6 +30,7 @@ final class PokedexCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Pokemon name Here"
+        label.textColor = .black
         label.textAlignment = .center
         label.font = .boldSystemFont(ofSize: 18)
         return label
@@ -57,9 +58,9 @@ final class PokedexCell: UITableViewCell {
     //MARK: - Helpers
     
     private func commonInit() {
+        backgroundColor = .white
         configureViewHeirarchy()
         configureConstraints()
-        configureStyle()
     }
     
     private func configureViewHeirarchy() {
@@ -75,18 +76,14 @@ final class PokedexCell: UITableViewCell {
             containerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             containerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
             
-            mainStackView.topAnchor.constraint(equalTo: topAnchor, constant: 3),
-            mainStackView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            mainStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -3),
+            mainStackView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 3),
+            mainStackView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            mainStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -3),
             
             pokemonImage.heightAnchor.constraint(equalToConstant: 150),
             pokemonImage.widthAnchor.constraint(equalToConstant: 150),
             
         ])
-    }
-    
-    private func configureStyle() {
-        
     }
     
     func configureCell(pokemon: Pokemon) {

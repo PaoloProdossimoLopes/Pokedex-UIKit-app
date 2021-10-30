@@ -8,12 +8,4 @@
 import Foundation
 import UIKit
 
-//final class PokemonDetail: Pokemon {
-//    
-//    
-//    
-//    init(detail: PokemonDetailResponse, pokemon: Pokemon) {
-//        super.init(pokemon: pokemon)
-//    }
-//    
-//}
+
