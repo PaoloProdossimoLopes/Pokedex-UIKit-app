@@ -9,6 +9,8 @@ import Foundation
 
 struct PokemonDetailReponse: Decodable {
     let sprites: PokemonSpretes
+    let species: Species
+    
 }
 
 struct PokemonSpretes: Decodable {
@@ -18,4 +20,9 @@ struct PokemonSpretes: Decodable {
         case front = "front_default"
     }
 }
+
+struct Species: Decodable {
+    let url: String
+}
+
 
