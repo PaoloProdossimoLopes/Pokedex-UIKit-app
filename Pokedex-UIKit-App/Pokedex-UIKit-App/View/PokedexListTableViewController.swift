@@ -45,7 +45,10 @@ class PokedexListTableViewController: UITableViewController {
         view.backgroundColor = .white
         navigationItem.title = "Pokedex"
         
-        tableView.rowHeight = 300
+        navigationController?.navigationBar.barTintColor = .white
+        navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
+        
+        tableView.rowHeight = 250
         tableView.tableFooterView = UIView()
         tableView.separatorStyle = .none
         tableView.register(PokedexCell.self, forCellReuseIdentifier: POKEDEX_CEL_IDENTIFIER)
@@ -74,13 +77,10 @@ class PokedexListTableViewController: UITableViewController {
         
         present(alert, animated: true, completion: nil)
     }
-    
-    //MARK: - Selectors
-
 
 }
 
-//MARK: -
+//MARK: - Delagte & DataSouce
 
 extension PokedexListTableViewController {
     
@@ -91,12 +91,29 @@ extension PokedexListTableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: POKEDEX_CEL_IDENTIFIER, for: indexPath) as! PokedexCell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: POKEDEX_CEL_IDENTIFIER, for: indexPath) as? PokedexCell else { return UITableViewCell() }
         let pk = viewModel.getPokemon(at: indexPath.row)
         let pokemon: Pokemon = .init(name: pk.name,
                                      photo: viewModel.getPokemonImage(at: indexPath.row))
         cell.configureCell(pokemon: pokemon)
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        let info = viewModel.fetchDetails(at: indexPath.row)
+        guard let image = viewModel.getPokemonImage(at: indexPath.row) else { return }
+        
+        let model = PokemonDetailModel(plResponse: viewModel.getPokemon(at: indexPath.row),
+                                       photo: image,
+                                       species: info)
+        
+        let vc = PokemonDetailViewController(model: model)
+        print(info)
+        
+        self.present(vc, animated: true, completion: nil)
+        
     }
     
 }

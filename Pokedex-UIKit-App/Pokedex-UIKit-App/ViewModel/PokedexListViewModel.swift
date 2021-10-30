@@ -14,6 +14,7 @@ final class PokedexListViewModel {
     private let repository: PokedexRepository = .init()
     private var pokemonsResponse = [PokemonListReponse]()
     private var pokemonImages = [UIImage]()
+    private var species = [SpeciesDetailResponse]()
     
     //MARK: - Bindings
     
@@ -36,13 +37,22 @@ final class PokedexListViewModel {
     }
     
     func fetchPokemonsForPokedex() {
-        repository.fetchPokedexList { [weak self] listReponse, pImage in
+        repository.fetchPokedexList { [weak self] listReponse, pImage, spc in
             guard let self = self else { return }
-            self.pokemonImages.append(pImage)
-            self.pokemonsResponse.append(listReponse)
-            self.updateView?()
+            self.repository.fetchSpecies(specie: spc) { resp in
+                self.pokemonImages.append(pImage)
+                self.pokemonsResponse.append(listReponse)
+                self.species.append(resp)
+                self.updateView?()
+            }
+            
         } failure: { [weak self] error in
             self?.showError?(error)
         }
     }
+    
+    func fetchDetails(at index: Int) -> SpeciesDetailResponse {
+        return species[index]
+    }
+    
 }
