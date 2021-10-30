@@ -55,4 +55,29 @@ final class PokedexListViewModel {
         return species[index]
     }
     
+    func getCell(_ tableView: UITableView, identifier: String, at indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? PokedexCell else { return UITableViewCell() }
+        
+        let pk = getPokemon(at: indexPath.row)
+        let pokemon: Pokemon = .init(name: pk.name,
+                                     photo: getPokemonImage(at: indexPath.row))
+        
+        cell.configureCell(pokemon: pokemon)
+        cell.selectionStyle = .none
+        
+        return cell
+    }
+    
+    func getPokemonDetailView(at indexPath: IndexPath) -> UIViewController {
+        let info = fetchDetails(at: indexPath.row)
+        guard let image = getPokemonImage(at: indexPath.row) else { return UIViewController() }
+        
+        let model = PokemonDetailModel(plResponse: getPokemon(at: indexPath.row),
+                                       photo: image,
+                                       species: info)
+        
+        return  PokemonDetailViewController(model: model)
+        
+    }
+    
 }

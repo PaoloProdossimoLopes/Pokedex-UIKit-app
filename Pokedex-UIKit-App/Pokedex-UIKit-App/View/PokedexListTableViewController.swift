@@ -15,6 +15,14 @@ class PokedexListTableViewController: UITableViewController {
     
     private let viewModel: PokedexListViewModel
     
+    private lazy var pokeballButton: UIImageView = {
+        let image = UIImage(named: "pokeball")?.withRenderingMode(.alwaysOriginal)
+        let view = UIImageView()
+        view.image = image
+        view.contentMode = .scaleAspectFit
+        return view
+    }()
+    
     //MARK: - Constructors
     
     init(viewModel: PokedexListViewModel) {
@@ -43,10 +51,13 @@ class PokedexListTableViewController: UITableViewController {
     
     private func configureNavigationController() {
         view.backgroundColor = .white
-        navigationItem.title = "Pokedex"
         
         navigationController?.navigationBar.barTintColor = .white
-        navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
+        navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.red]
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.hidesBarsOnSwipe = true
+        
+        navigationItem.titleView = pokeballButton
         
         tableView.rowHeight = 250
         tableView.tableFooterView = UIView()
@@ -91,30 +102,14 @@ extension PokedexListTableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: POKEDEX_CEL_IDENTIFIER, for: indexPath) as? PokedexCell else { return UITableViewCell() }
-        let pk = viewModel.getPokemon(at: indexPath.row)
-        let pokemon: Pokemon = .init(name: pk.name,
-                                     photo: viewModel.getPokemonImage(at: indexPath.row))
-        cell.configureCell(pokemon: pokemon)
-        return cell
+        return viewModel.getCell(tableView, identifier: POKEDEX_CEL_IDENTIFIER, at: indexPath)
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        
-        let info = viewModel.fetchDetails(at: indexPath.row)
-        guard let image = viewModel.getPokemonImage(at: indexPath.row) else { return }
-        
-        let model = PokemonDetailModel(plResponse: viewModel.getPokemon(at: indexPath.row),
-                                       photo: image,
-                                       species: info)
-        
-        let vc = PokemonDetailViewController(model: model)
-        print(info)
+        let vc = viewModel.getPokemonDetailView(at: indexPath)
+        vc.modalPresentationStyle = .fullScreen
         
         self.present(vc, animated: true, completion: nil)
-        
     }
     
 }
-
