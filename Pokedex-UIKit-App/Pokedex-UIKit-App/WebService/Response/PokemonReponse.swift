@@ -8,10 +8,11 @@
 import Foundation
 
 struct PokemonReponse: Decodable {
+    
     let results: [PokemonListReponse]
 }
 
-struct PokemonListReponse: Decodable {
+struct PokemonListReponse: Equatable, Decodable {
     let name: String
     let url: String
 }

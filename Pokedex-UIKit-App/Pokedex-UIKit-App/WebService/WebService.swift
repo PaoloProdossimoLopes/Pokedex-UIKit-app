@@ -12,33 +12,33 @@ class WebService {
     
     static let shared: WebService = .init()
     
-    func fetchPokemonList(request: PokemonRequest, result: @escaping (Result<PokemonReponse, WebServiceError>)->()) {
-        
-        guard let url = request.API else {
-            result(.failure(.URLInvalid))
-            return
-        }
-        
-        callAPI(url: url) { (listResult: Result<PokemonReponse, WebServiceError>) in
-            result(listResult)
-        }
-    }
+//    func fetchPokemonList(request: PokemonRequest, result: @escaping (Result<PokemonReponse, WebServiceError>)->()) {
+//        
+//        guard let url = request.API else {
+//            result(.failure(.URLInvalid))
+//            return
+//        }
+//        
+//        callAPI(url: url) { (listResult: Result<PokemonReponse, WebServiceError>) in
+//            result(listResult)
+//        }
+//    }
     
-    func fetchPokemonDetail(urlString: String,
-                            result:  @escaping (Result<PokemonDetailReponse, WebServiceError>)->()) {
+    func perform<T: Decodable>(urlString: String,
+                            result:  @escaping (Result<T, WebServiceError>)->()) {
         
         guard let url = URL(string: urlString) else {
             result(.failure(.URLInvalid))
             return
         }
         
-        callAPI(url: url) { (detailResult: Result<PokemonDetailReponse, WebServiceError>) in
+        callAPI(url: url) { (detailResult: Result<T, WebServiceError>) in
             result(detailResult)
         }
         
     }
     
-    func convertImage(urlString: String, completion: (UIImage)->()) {
+    func perform(urlString: String, completion: (UIImage)->()) {
         guard let url = URL(string: urlString) else { return  }
         var data: Data
         
@@ -61,6 +61,18 @@ class WebService {
             completion(result)
         }
 
+    }
+    
+    //modelo 1
+    func perform<T: Decodable>(request: PokemonRequest, result: @escaping (Result<T, WebServiceError>)->()) {
+        guard let url = request.API else {
+            result(.failure(.URLInvalid))
+            return
+        }
+        
+        callAPI(url: url) { (listResult: Result<T, WebServiceError>) in
+            result(listResult)
+        }
     }
     
     private func callAPI<T: Decodable>(url: URL, result: @escaping (Result<T, WebServiceError>)-> Void) {

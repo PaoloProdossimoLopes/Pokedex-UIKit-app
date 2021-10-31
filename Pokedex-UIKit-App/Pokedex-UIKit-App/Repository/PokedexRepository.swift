@@ -9,64 +9,105 @@ import UIKit
 
 final class PokedexRepository: WebService {
     
-    func fetchPokedexList(succes: @escaping (PokemonListReponse, UIImage, Species)->(),
-                          failure: @escaping (WebServiceError)->()) {
+    private let dGroup: DispatchGroup = .init()
+    
+    private var pokemonsResponse = [PokemonListReponse]()
+    private var pokeonDetailResponse = [PokemonDetailReponse]()
+    private var species = [SpeciesDetailResponse]()
+    private var pokemonImages = [UIImage]()
+    
+    func collectPokemonInformations(completion: @escaping ([PokemonBasicInfo])->()) {
         
-        fetchPokemonList(request: .defaultAPI) { results in
+        fetchPokemonList { pokemons in
+            pokemons.results.forEach { self.pokemonsResponse.append($0) }
+            self.FPD {  self.dGroup.leave() }
+        } failure: { error in
+            print(error)
+        }
+        
+        //notify when done
+        dGroup.notify(queue: .global()) {
+            
+            var pokemons = [PokemonBasicInfo]()
+            
+            for i in (0 ..< self.pokemonsResponse.count) {
+                pokemons.append(PokemonBasicInfo(id: self.species[i].id,
+                                                 name: self.pokemonsResponse[i].name,
+                                                 image: self.pokemonImages[i],
+                                                 flavourText: self.species[i].flavor_text_entries))
+            }
+            
+            completion(pokemons)
+        }
+    }
+    
+    //Fetch pokemon list
+    
+    private func fetchPokemonList(succes: @escaping (PokemonReponse)->(),
+                                  failure: @escaping (WebServiceError)->()) {
+        dGroup.enter()
+        perform(request: .defaultAPI) { (results: Result<PokemonReponse, WebServiceError>) in
             switch results {
-            case .success(let pokemons):
-                for pokemon in pokemons.results {
-                    self.fetchPokemonDetail(reponse: pokemon, succes: { image, species in
-                        succes(pokemon, image, species) }, failure: failure)
+                case .success(let pokemons): succes(pokemons)
+                case .failure(let error): failure(error)
+            }
+        }
+    }
+    
+    //Fetch pokemon detail
+    
+    private func FPD(completion: @escaping ()->()) {
+        for pokemon in pokemonsResponse {
+            fetchPokemonsDetails(url: pokemon.url) { PDetailReponse in
+                self.pokeonDetailResponse.append(PDetailReponse)
+                self.GPImage(url: PDetailReponse.sprites.front)
+                self.fetchSpecies(species: PDetailReponse.species) { specie in
+                    self.species.append(specie)
+                    if pokemon == self.pokemonsResponse.last { completion() }
                 }
-            case .failure(let error): failure(error) }
-        }
-    }
-    
-    private func fetchPokemonDetail(reponse: PokemonListReponse,
-                                    succes: @escaping (UIImage, Species)->(),
-                                    failure: @escaping (WebServiceError)->()) {
-        
-        fetchPokemonDetail(urlString: reponse.url) { result in
-            switch result {
-            case .success(let pokemonDetail):
-                self.convertImage(urlString: pokemonDetail.sprites.front) { image in
-                    succes(image, pokemonDetail.species) }
-                
-            case .failure(let error):
-                failure(error)
+            } failure: { error in
+                print(error)
             }
         }
     }
     
-    func fetchSpecies(specie: Species, completion: @escaping(SpeciesDetailResponse)->()) {
+    private func fetchPokemonsDetails(url: String,
+                                      success: @escaping (PokemonDetailReponse)->(),
+                                      failure: @escaping (WebServiceError)->()) {
         
-        fetchMoreDetails(urlString: specie.url) { result in
+        perform(urlString: url) { (result: (Result<PokemonDetailReponse, WebServiceError>)) in
             switch result {
-            case .success(let speciesResponse):
-                completion(speciesResponse)
-            case .failure(let error):
-                break
+            case .success(let pokemonDetail): success(pokemonDetail)
+            case .failure(let error): failure(error)
             }
         }
-        
     }
     
-//    func fetchInformationAbountPokemon(url: String,
-//                                       succes: @escaping (SpeciesDetailResponse)->(),
-//                                       failure: @escaping (WebServiceError)->(),
-//                                       completion: @escaping (Bool)->()) {
-//        
-//        fetchMoreDetails(urlString: url) { result in
-//            switch result {
-//                case .success(let pokemonSpeciesDetailResponse):
-//                    succes(pokemonSpeciesDetailResponse)
-//                    completion(true)
-//                case .failure(let error):
-//                    failure(error)
-//                    completion(false)
-//            }
-//        }
-//        
-//    }
+    //Get image
+    
+    private func GPImage(url: String) {
+        getPokemonImage(url: url) { image in
+            self.pokemonImages.append(image)
+        }
+    }
+    
+    private func getPokemonImage(url: String, completion: @escaping (UIImage)->()) {
+        self.perform(urlString: url) { image in
+            completion(image)
+        }
+    }
+    
+    func fetchSpecies(species: Species, completion: @escaping(SpeciesDetailResponse)->()) {
+        
+            fetchMoreDetails(urlString: species.url) { result in
+                switch result {
+                case .success(let speciesResponse):
+                    completion(speciesResponse)
+                case .failure(_):
+                    break
+                }
+            
+        }
+    }
+    
 }

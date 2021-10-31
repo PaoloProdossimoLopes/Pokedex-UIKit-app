@@ -86,9 +86,9 @@ final class PokedexCell: UITableViewCell {
         ])
     }
     
-    func configureCell(pokemon: Pokemon) {
+    func configureCell(pokemon: PokemonBasicInfo) {
         pokemonName.text = pokemon.name
-        pokemonImage.image = pokemon.photo
+        pokemonImage.image = pokemon.image
     }
     
 }

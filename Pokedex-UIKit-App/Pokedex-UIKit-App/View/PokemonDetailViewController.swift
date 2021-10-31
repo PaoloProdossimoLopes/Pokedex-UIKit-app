@@ -11,7 +11,7 @@ final class PokemonDetailViewController: UIViewController {
     
     //MARK: - Properties
     
-    var model: PokemonDetailModel?
+    var model: PokemonBasicInfo
     
     private lazy var closeButton: UIButton = {
         let image = UIImage(systemName: "xmark.square.fill")
@@ -28,7 +28,7 @@ final class PokemonDetailViewController: UIViewController {
     
     private lazy var pokemonImage: UIImageView = {
         let image = UIImageView()
-        image.image = model?.photo
+        image.image = model.image
         image.contentMode = .scaleAspectFill
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
@@ -36,9 +36,10 @@ final class PokemonDetailViewController: UIViewController {
     
     private lazy var pokemonName: UILabel = {
         let label = UILabel()
-        label.text = model?.name.uppercased()
+        label.text = model.name.uppercased()
         label.textAlignment = .center
         label.font = .boldSystemFont(ofSize: 20)
+        label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -54,7 +55,7 @@ final class PokemonDetailViewController: UIViewController {
     
     //MARK: - Constructor
     
-    init(model: PokemonDetailModel) {
+    init(model: PokemonBasicInfo) {
         self.model = model
         super.init(nibName: nil, bundle: nil)
     }
@@ -124,12 +125,12 @@ extension PokemonDetailViewController: UITableViewDelegate, UITableViewDataSourc
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return model?.flavorText.count ?? 0
+        return model.flavourText.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: FLAVOR_TEXT_CELL_REUSE_IDENTIFIER, for: indexPath) as! FlavorTextCell
-        cell.message.text = model?.flavorText[indexPath.row].flavor_text
+        cell.message.text = model.flavourText[indexPath.row].flavor_text
         return cell
     }
     

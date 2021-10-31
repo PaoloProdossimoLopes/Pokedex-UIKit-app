@@ -12,9 +12,7 @@ final class PokedexListViewModel {
     //MARK: - Properties
     
     private let repository: PokedexRepository = .init()
-    private var pokemonsResponse = [PokemonListReponse]()
-    private var pokemonImages = [UIImage]()
-    private var species = [SpeciesDetailResponse]()
+    private var pokemons: [PokemonBasicInfo] = .init()
     
     //MARK: - Bindings
     
@@ -23,44 +21,33 @@ final class PokedexListViewModel {
     
     //MARK: - Functions
     
-    func getPokemon(at index: Int) -> PokemonListReponse {
-        return pokemonsResponse[index]
+    func getPokemon(at index: Int) -> PokemonBasicInfo {
+        return pokemons[index]
     }
     
     func getPokemonImage(at index: Int) -> UIImage? {
-        let outOfRange: Bool = (index) >= pokemonImages.count
-        return outOfRange ? nil : pokemonImages[index]
+        let outOfRange: Bool = (index) >= pokemons.count
+        return outOfRange ? nil : pokemons[index].image
     }
     
     func getNumberOfPokemons() -> Int {
-        return pokemonsResponse.count
+        return pokemons.count
     }
     
     func fetchPokemonsForPokedex() {
-        repository.fetchPokedexList { [weak self] listReponse, pImage, spc in
-            guard let self = self else { return }
-            self.repository.fetchSpecies(specie: spc) { resp in
-                self.pokemonImages.append(pImage)
-                self.pokemonsResponse.append(listReponse)
-                self.species.append(resp)
-                self.updateView?()
-            }
-            
-        } failure: { [weak self] error in
-            self?.showError?(error)
+        
+        repository.collectPokemonInformations { pokemons in
+            self.pokemons = pokemons
+            self.updateView?()
         }
-    }
-    
-    func fetchDetails(at index: Int) -> SpeciesDetailResponse {
-        return species[index]
     }
     
     func getCell(_ tableView: UITableView, identifier: String, at indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? PokedexCell else { return UITableViewCell() }
         
         let pk = getPokemon(at: indexPath.row)
-        let pokemon: Pokemon = .init(name: pk.name,
-                                     photo: getPokemonImage(at: indexPath.row))
+        let pokemon: PokemonBasicInfo = .init(id: pk.id, name: pk.name, image: pk.image,
+                                              flavourText: pk.flavourText)
         
         cell.configureCell(pokemon: pokemon)
         cell.selectionStyle = .none
@@ -69,15 +56,7 @@ final class PokedexListViewModel {
     }
     
     func getPokemonDetailView(at indexPath: IndexPath) -> UIViewController {
-        let info = fetchDetails(at: indexPath.row)
-        guard let image = getPokemonImage(at: indexPath.row) else { return UIViewController() }
-        
-        let model = PokemonDetailModel(plResponse: getPokemon(at: indexPath.row),
-                                       photo: image,
-                                       species: info)
-        
-        return  PokemonDetailViewController(model: model)
-        
+        return  PokemonDetailViewController(model: pokemons[indexPath.row])
     }
     
 }

@@ -19,4 +19,11 @@ struct PokemonDetailModel {
         self.photo = photo
         self.flavorText = species.flavor_text_entries
     }
+    
+    init(pBasicInfo: PokemonBasicInfo) {
+        self.id = pBasicInfo.id
+        self.name = pBasicInfo.name
+        self.photo = pBasicInfo.image
+        self.flavorText = pBasicInfo.flavourText
+    }
 }
